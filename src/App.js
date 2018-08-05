@@ -1,25 +1,10 @@
 import React, { Component } from 'react';
 
-const list = [
-  {
-    id: 1,
-    title: 'google',
-    url: 'google.com',
-    author: 'brin',
-  },
-  {
-    id: 2,
-    title: 'yandex',
-    url: 'yandex.ru',
-    author: 'alex',
-  },
-  {
-    id: 3,
-    title: 'yahoo',
-    url: 'yahoo.com',
-    author: 'jim',
-  },
-];
+const DEFAULT_QUERY = 'redux';
+
+const PATH_BASE = 'https://hn.algolia.com/api/v1';
+const PATH_SEARCH = '/search';
+const PARAM_SEARCH = 'query=';
 
 const largeColumn = {
   width: '40%',
@@ -36,23 +21,83 @@ const tinyColumn = {
 
 const isSearched = (searchTerm) => (item) => item.title.includes(searchTerm);
 
-const Search = ({ value, onChange, children }) => (
-  <form>
-    {children} <input type="text" value={value} onChange={onChange} />
+class App extends Component {
+  state = { result: null, searchTerm: DEFAULT_QUERY };
+
+  componentDidMount() {
+    const { searchTerm } = this.state;
+    this.fetchSearchTopStories(searchTerm);
+  }
+
+  fetchSearchTopStories = (searchTerm) => {
+    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}`)
+      .then((response) => response.json())
+      .then((result) => this.setSearchTopStories(result))
+      .catch((err) => err);
+  };
+
+  onSearchSubmit = () => {
+    const { searchTerm } = this.state;
+    this.fetchSearchTopStories(searchTerm);
+  };
+
+  setSearchTopStories = (result) => {
+    this.setState({ result });
+  };
+
+  onDismiss = (id) => () => {
+    this.setState(({ result }) => {
+      const updatedHits = result.hits.filter(({ objectID }) => objectID != id);
+      return { result: { ...result, hits: updatedHits } };
+    });
+  };
+
+  onSearchChange = (e) => {
+    this.setState({ searchTerm: e.target.value });
+  };
+
+  render() {
+    const { result, searchTerm } = this.state;
+    return (
+      <div className="page">
+        <div className="interactions">
+          <Search
+            value={searchTerm}
+            onChange={this.onSearchChange}
+            onSubmit={this.onSearchSubmit}>
+            Search
+          </Search>
+        </div>
+        {result && (
+          <Table
+            result={result}
+            pattern={searchTerm}
+            onDismiss={this.onDismiss}
+          />
+        )}
+      </div>
+    );
+  }
+}
+
+const Search = ({ value, onChange, onSubmit, children }) => (
+  <form onSubmit={onSubmit}>
+    <button type="submit">{children}</button>
+    <input type="text" value={value} onChange={onChange} />
   </form>
 );
 
-const Table = ({ list, pattern, onDismiss }) => (
+const Table = ({ result, pattern, onDismiss }) => (
   <div className="table">
-    {list.filter(isSearched(pattern)).map((item) => (
-      <div key={item.id} className="table-row">
-        <span style={tinyColumn}>{item.id}</span>
+    {result.hits.filter(isSearched(pattern)).map((item) => (
+      <div key={item.objectID} className="table-row">
+        <span style={tinyColumn}>{item.objectID}</span>
         <span style={largeColumn}>
           <a href={item.url}>{item.title}</a>
         </span>{' '}
         <span style={midColumn}>{item.author}</span>
         <span style={smallColumn}>
-          <Button className="button-inline" onClick={onDismiss(item.id)}>
+          <Button className="button-inline" onClick={onDismiss(item.objectID)}>
             Remove
           </Button>
         </span>
@@ -66,34 +111,5 @@ const Button = ({ className = '', onClick, children }) => (
     {children}
   </button>
 );
-
-class App extends Component {
-  state = { list, searchTerm: '' };
-
-  onDismiss = (removeId) => (e) => {
-    this.setState(({ list }) => {
-      const updatedList = list.filter(({ id }) => id !== removeId);
-      return { list: updatedList };
-    });
-  };
-
-  onSearchChange = (e) => {
-    this.setState({ searchTerm: e.target.value });
-  };
-
-  render() {
-    const { list, searchTerm } = this.state;
-    return (
-      <div className="page">
-        <div className="interactions">
-          <Search value={searchTerm} onChange={this.onSearchChange}>
-            Search
-          </Search>
-        </div>
-        <Table list={list} pattern={searchTerm} onDismiss={this.onDismiss} />
-      </div>
-    );
-  }
-}
 
 export default App;
