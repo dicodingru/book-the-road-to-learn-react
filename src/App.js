@@ -1,4 +1,12 @@
 import React, { Component } from 'react';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+
+library.add(faSpinner);
+
 import axios from 'axios';
 
 const DEFAULT_QUERY = 'redux';
@@ -32,6 +40,7 @@ class App extends Component {
     searchKey: '',
     searchTerm: DEFAULT_QUERY,
     error: null,
+    isLoading: false,
   };
 
   componentDidMount() {
@@ -48,6 +57,7 @@ class App extends Component {
   needsToSearchTopStories = (searchTerm) => !this.state.results[searchTerm];
 
   fetchSearchTopStories = (searchTerm, page = 0) => {
+    this.setState({ isLoading: true });
     axios(
       `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`
     )
@@ -76,6 +86,7 @@ class App extends Component {
     const updatedHits = [...oldHits, ...hits];
     this.setState({
       results: { ...results, [searchKey]: { hits: updatedHits, page } },
+      isLoading: false,
     });
   };
 
@@ -94,7 +105,7 @@ class App extends Component {
   };
 
   render() {
-    const { results, searchTerm, searchKey, error } = this.state;
+    const { results, searchTerm, searchKey, error, isLoading } = this.state;
 
     const page =
       (results && results[searchKey] && results[searchKey].page) || 0;
@@ -118,10 +129,16 @@ class App extends Component {
           <div>
             <Table list={list} onDismiss={this.onDismiss} />
             <div className="interactions">
-              <Button
-                onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>
-                More stories
-              </Button>
+              {isLoading ? (
+                <Loading />
+              ) : (
+                <Button
+                  onClick={() =>
+                    this.fetchSearchTopStories(searchKey, page + 1)
+                  }>
+                  More stories
+                </Button>
+              )}
             </div>
           </div>
         )}
@@ -175,6 +192,12 @@ const Button = ({ className = '', onClick, children }) => (
   <button onClick={onClick} className={className}>
     {children}
   </button>
+);
+
+const Loading = () => (
+  <div>
+    <FontAwesomeIcon icon="spinner" rotation={90} spin size="lg" />
+  </div>
 );
 
 export default App;
