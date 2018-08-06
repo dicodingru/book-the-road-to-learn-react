@@ -5,7 +5,7 @@ import './index.css';
 import './App.css';
 
 ReactDOM.render(
-  <App user={{ firstName: 'Di', lastName: 'Coderr' }} />,
+  <App />,
   document.getElementById('root')
 );
 
