@@ -129,16 +129,11 @@ class App extends Component {
           <div>
             <Table list={list} onDismiss={this.onDismiss} />
             <div className="interactions">
-              {isLoading ? (
-                <Loading />
-              ) : (
-                <Button
-                  onClick={() =>
-                    this.fetchSearchTopStories(searchKey, page + 1)
-                  }>
-                  More stories
-                </Button>
-              )}
+              <ButtonWithLoading
+                isLoading={isLoading}
+                onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>
+                More stories
+              </ButtonWithLoading>
             </div>
           </div>
         )}
@@ -199,6 +194,11 @@ const Loading = () => (
     <FontAwesomeIcon icon="spinner" rotation={90} spin size="lg" />
   </div>
 );
+
+const withLoading = (Component) => ({ isLoading, ...rest }) =>
+  isLoading ? <Loading /> : <Component {...rest} />;
+
+const ButtonWithLoading = withLoading(Button);
 
 export default App;
 
