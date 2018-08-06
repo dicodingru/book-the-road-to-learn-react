@@ -4,6 +4,7 @@ const DEFAULT_QUERY = 'redux';
 const DEFAULT_HPP = '100';
 
 const PATH_BASE = 'https://hn.algolia.com/api/v1';
+// const PATH_BASE = 'https://sdfkalgolia.com/api/v1'; // trigger an error
 const PATH_SEARCH = '/search';
 const PARAM_SEARCH = 'query=';
 const PARAM_PAGE = 'page=';
@@ -23,7 +24,12 @@ const tinyColumn = {
 };
 
 class App extends Component {
-  state = { results: null, searchKey: '', searchTerm: DEFAULT_QUERY };
+  state = {
+    results: null,
+    searchKey: '',
+    searchTerm: DEFAULT_QUERY,
+    error: null,
+  };
 
   componentDidMount() {
     const { searchTerm } = this.state;
@@ -39,7 +45,7 @@ class App extends Component {
     )
       .then((response) => response.json())
       .then((result) => this.setSearchTopStories(result))
-      .catch((err) => err);
+      .catch((error) => this.setState({ error }));
   };
 
   onSearchSubmit = (e) => {
@@ -79,11 +85,14 @@ class App extends Component {
   };
 
   render() {
-    const { results, searchTerm, searchKey } = this.state;
+    const { results, searchTerm, searchKey, error } = this.state;
+
     const page =
       (results && results[searchKey] && results[searchKey].page) || 0;
+
     const list =
       (results && results[searchKey] && results[searchKey].hits) || [];
+
     return (
       <div className="page">
         <div className="interactions">
@@ -94,13 +103,19 @@ class App extends Component {
             Search
           </Search>
         </div>
-        <Table list={list} onDismiss={this.onDismiss} />
-        <div className="interactions">
-          <Button
-            onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>
-            More stories
-          </Button>
-        </div>
+        {error ? (
+          <p>Something went wrong...</p>
+        ) : (
+          <div>
+            <Table list={list} onDismiss={this.onDismiss} />
+            <div className="interactions">
+              <Button
+                onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>
+                More stories
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
