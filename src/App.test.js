@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import renderer from 'react-test-renderer';
-import App, { Search, Button, Table } from './App';
+import App, { Search, Button, Table, SORTS } from './App';
 
 describe('App', () => {
   it('should render without errors', () => {
@@ -52,6 +52,9 @@ describe('Table', () => {
       { title: '2', author: '2', num_comments: 1, points: 2, objectID: 'z' },
     ],
     onDismiss: () => {},
+    sortKey: 'NONE',
+    onSort: () => {},
+    isSortReverse: false,
   };
 
   it('should render without errors', () => {

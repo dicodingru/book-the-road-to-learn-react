@@ -25,7 +25,73 @@ exports[`App should match snapshot 1`] = `
   <div>
     <div
       className="table"
-    />
+    >
+      <div
+        className="table-header"
+      >
+        <span
+          style={
+            Object {
+              "width": "10%",
+            }
+          }
+        >
+          ID
+        </span>
+        <span
+          style={
+            Object {
+              "width": "40%",
+            }
+          }
+        >
+          <button
+            className="button-inline"
+            onClick={[Function]}
+          >
+            Title
+          </button>
+        </span>
+         
+        <span
+          style={
+            Object {
+              "width": "20%",
+            }
+          }
+        >
+          <button
+            className="button-inline"
+            onClick={[Function]}
+          >
+            Author
+          </button>
+        </span>
+        <span
+          style={
+            Object {
+              "width": "20%",
+            }
+          }
+        >
+          <button
+            className="button-inline"
+            onClick={[Function]}
+          >
+            Points
+          </button>
+        </span>
+        <span
+          style={
+            Object {
+              "width": "10%",
+            }
+          }
+        >
+          Remove
+        </span>
+      </div>
+    </div>
     <div
       className="interactions"
     >
@@ -78,6 +144,71 @@ exports[`Table should match snapshot 1`] = `
   className="table"
 >
   <div
+    className="table-header"
+  >
+    <span
+      style={
+        Object {
+          "width": "10%",
+        }
+      }
+    >
+      ID
+    </span>
+    <span
+      style={
+        Object {
+          "width": "40%",
+        }
+      }
+    >
+      <button
+        className="button-inline"
+        onClick={[Function]}
+      >
+        Title
+      </button>
+    </span>
+     
+    <span
+      style={
+        Object {
+          "width": "20%",
+        }
+      }
+    >
+      <button
+        className="button-inline"
+        onClick={[Function]}
+      >
+        Author
+      </button>
+    </span>
+    <span
+      style={
+        Object {
+          "width": "20%",
+        }
+      }
+    >
+      <button
+        className="button-inline"
+        onClick={[Function]}
+      >
+        Points
+      </button>
+    </span>
+    <span
+      style={
+        Object {
+          "width": "10%",
+        }
+      }
+    >
+      Remove
+    </span>
+  </div>
+  <div
     className="table-row"
   >
     <span
@@ -104,7 +235,7 @@ exports[`Table should match snapshot 1`] = `
     <span
       style={
         Object {
-          "width": "30%",
+          "width": "20%",
         }
       }
     >
@@ -114,6 +245,15 @@ exports[`Table should match snapshot 1`] = `
       style={
         Object {
           "width": "20%",
+        }
+      }
+    >
+      2
+    </span>
+    <span
+      style={
+        Object {
+          "width": "10%",
         }
       }
     >
@@ -151,7 +291,7 @@ exports[`Table should match snapshot 1`] = `
     <span
       style={
         Object {
-          "width": "30%",
+          "width": "20%",
         }
       }
     >
@@ -161,6 +301,15 @@ exports[`Table should match snapshot 1`] = `
       style={
         Object {
           "width": "20%",
+        }
+      }
+    >
+      2
+    </span>
+    <span
+      style={
+        Object {
+          "width": "10%",
         }
       }
     >

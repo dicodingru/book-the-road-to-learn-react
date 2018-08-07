@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
+import axios from 'axios';
+import cn from 'classnames';
+import { sortBy } from 'lodash';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 library.add(faSpinner);
-
-import axios from 'axios';
 
 const DEFAULT_QUERY = 'redux';
 const DEFAULT_HPP = '100';
@@ -18,6 +18,13 @@ const PATH_SEARCH = '/search';
 const PARAM_SEARCH = 'query=';
 const PARAM_PAGE = 'page=';
 const PARAM_HPP = 'hitsPerPage=';
+
+const SORTS = {
+  NONE: (list) => list,
+  TITLE: (list) => sortBy(list, 'title'),
+  AUTHOR: (list) => sortBy(list, 'author'),
+  POINTS: (list) => sortBy(list, 'points').reverse(),
+};
 
 const largeColumn = {
   width: '40%',
@@ -41,6 +48,8 @@ class App extends Component {
     searchTerm: DEFAULT_QUERY,
     error: null,
     isLoading: false,
+    sortKey: 'NONE',
+    isSortReverse: false,
   };
 
   componentDidMount() {
@@ -53,6 +62,12 @@ class App extends Component {
   componentWillUnmount() {
     this._isMounted = false;
   }
+
+  onSort = (sortKey) => {
+    const isSortReverse =
+      this.state.sortKey === sortKey && !this.state.isSortReverse;
+    this.setState({ sortKey, isSortReverse });
+  };
 
   needsToSearchTopStories = (searchTerm) => !this.state.results[searchTerm];
 
@@ -105,7 +120,15 @@ class App extends Component {
   };
 
   render() {
-    const { results, searchTerm, searchKey, error, isLoading } = this.state;
+    const {
+      results,
+      searchTerm,
+      searchKey,
+      error,
+      isLoading,
+      sortKey,
+      isSortReverse,
+    } = this.state;
 
     const page =
       (results && results[searchKey] && results[searchKey].page) || 0;
@@ -127,7 +150,13 @@ class App extends Component {
           <p>Something went wrong...</p>
         ) : (
           <div>
-            <Table list={list} onDismiss={this.onDismiss} />
+            <Table
+              list={list}
+              onDismiss={this.onDismiss}
+              sortKey={sortKey}
+              onSort={this.onSort}
+              isSortReverse={isSortReverse}
+            />
             <div className="interactions">
               <ButtonWithLoading
                 isLoading={isLoading}
@@ -164,24 +193,61 @@ class Search extends Component {
   }
 }
 
-const Table = ({ list, onDismiss }) => (
-  <div className="table">
-    {list.map((item) => (
-      <div key={item.objectID} className="table-row">
-        <span style={tinyColumn}>{item.objectID}</span>
+const Sort = ({ sortKey, children, onSort, activeSortKey }) => {
+  const sortClass = cn('button-inline', {
+    'button-active': sortKey === activeSortKey,
+  });
+  return (
+    <Button className={sortClass} onClick={() => onSort(sortKey)}>
+      {children}
+    </Button>
+  );
+};
+
+const Table = ({ list, onDismiss, sortKey, onSort, isSortReverse }) => {
+  const sortedList = SORTS[sortKey](list);
+  const reverseSortedList = isSortReverse ? sortedList.reverse() : sortedList;
+  return (
+    <div className="table">
+      <div className="table-header">
+        <span style={tinyColumn}>ID</span>
         <span style={largeColumn}>
-          <a href={item.url}>{item.title}</a>
+          <Sort onSort={onSort} sortKey={'TITLE'} activeSortKey={sortKey}>
+            Title
+          </Sort>
         </span>{' '}
-        <span style={midColumn}>{item.author}</span>
         <span style={smallColumn}>
-          <Button className="button-inline" onClick={onDismiss(item.objectID)}>
-            Remove
-          </Button>
+          <Sort onSort={onSort} sortKey={'AUTHOR'} activeSortKey={sortKey}>
+            Author
+          </Sort>
         </span>
+        <span style={smallColumn}>
+          <Sort onSort={onSort} sortKey={'POINTS'} activeSortKey={sortKey}>
+            Points
+          </Sort>
+        </span>
+        <span style={tinyColumn}>Remove</span>
       </div>
-    ))}
-  </div>
-);
+      {reverseSortedList.map((item) => (
+        <div key={item.objectID} className="table-row">
+          <span style={tinyColumn}>{item.objectID}</span>
+          <span style={largeColumn}>
+            <a href={item.url}>{item.title}</a>
+          </span>{' '}
+          <span style={smallColumn}>{item.author}</span>
+          <span style={smallColumn}>{item.points}</span>
+          <span style={tinyColumn}>
+            <Button
+              className="button-inline"
+              onClick={onDismiss(item.objectID)}>
+              Remove
+            </Button>
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 const Button = ({ className = '', onClick, children }) => (
   <button onClick={onClick} className={className}>
@@ -202,4 +268,4 @@ const ButtonWithLoading = withLoading(Button);
 
 export default App;
 
-export { Button, Search, Table };
+export { Button, Search, Table, SORTS };
