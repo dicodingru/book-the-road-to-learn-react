@@ -7,6 +7,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
+import { updateSearchTopStoriesState } from './helpers';
+
 library.add(faSpinner);
 
 const DEFAULT_QUERY = 'redux';
@@ -86,15 +88,8 @@ class App extends Component {
 
   setSearchTopStories = (result) => {
     const { hits, page } = result;
-    const { searchKey, results } = this.state;
-    const oldHits =
-      results && results[searchKey] ? results[searchKey].hits : [];
 
-    const updatedHits = [...oldHits, ...hits];
-    this.setState({
-      results: { ...results, [searchKey]: { hits: updatedHits, page } },
-      isLoading: false,
-    });
+    this.setState(updateSearchTopStoriesState(hits, page));
   };
 
   onDismiss = (id) => () => {
